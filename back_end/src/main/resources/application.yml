@@ -1,0 +1,47 @@
+# 默认的profile为dev，其他环境通过指定启动参数使用不同的profile，比如：
+# 测试环境：java -jar hitao.jar --spring.profiles.active=test
+# 生产环境：java -jar hitao.jar --spring.profiles.active=prod
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/dmpj?characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 123456
+    dbcp2:
+      driver: innodb
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: com.dmpj.config.DatabaseNamingStrategy
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+    database: mysql
+server:
+  context-path: /dmpj
+
+---
+# 开发环境配置
+spring:
+  profiles: dev
+# 服务器端口
+server:
+  port: 8081
+
+---
+# 测试环境配置
+spring:
+  profiles: test
+server:
+  port: 8082
+
+---
+# 生产环境配置
+spring:
+  profiles: prod
+server:
+  port: 8083
