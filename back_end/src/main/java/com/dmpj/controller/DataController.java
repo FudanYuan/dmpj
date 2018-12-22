@@ -90,7 +90,7 @@ public class DataController {
             Double mileage = trainTestData.getMileage();
             // 将里程数据转化为VO
             MileageDataVO mileageDataVO = new MileageDataVO();
-            mileageDataVO.setTime(chargeEndTime);
+            mileageDataVO.setTime(chargeEndTime.toString());
             mileageDataVO.setMileage(mileage);
             // 将温度数据信息加入列表
             mileageDataVOList.add(mileageDataVO);

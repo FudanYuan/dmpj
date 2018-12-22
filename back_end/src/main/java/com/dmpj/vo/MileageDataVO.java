@@ -11,7 +11,7 @@ public class MileageDataVO {
     /**
      * 开始时间戳
      */
-    private Long time;
+    private String time;
 
     /**
      * 里程数
