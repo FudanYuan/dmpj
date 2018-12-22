@@ -1,2 +1,0 @@
-vehicle_id,charge_start_time,charge_end_time,charge_duration,mileage,delta_mileage,charge_start_soc,charge_end_soc,charge_delta_soc,charge_start_U,charge_end_U,charge_start_I,charge_end_I,charge_max_temp,charge_min_temp,charge_delta_temp,charge_energy
-3,20171211153544,20171211165724,4900,143757.0,87.0,6.4,30.4,24.0,322.6,374.3,-5.6,-12.6,18.0,5.0,13.0,

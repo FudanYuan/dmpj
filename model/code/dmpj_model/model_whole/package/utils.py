@@ -3,6 +3,20 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+# 训练模型的类型:
+# 1->补充空值+数据标准化;
+# 2->未补充空值+数据标准化;
+# 3->补充空值+进行数据标准化;
+# 4->补充空值+未进行数据标准化
+type_dict = {
+    1 : 'with_fill',
+    2 : 'without_fill'
+}
+
+# 返回模型处理数据的类型
+def getType(id):
+    return type_dict[id]
+
 # 将时间字符串转化为时间
 def str2timestamp(string):
     year = string[0:4]
@@ -54,21 +68,41 @@ def filling(vectorA=[], vectorB=[]):
     return vectorB
 
 # 评估模型
-def evaluate(y_test, y_pred):
+def evaluate(y_test, y_pred, score=''):
     #评估模型
     from sklearn import metrics
-    # 用scikit-learn计算MSE
-    print("MSE:",metrics.mean_squared_error(y_test, y_pred))
-    # 用scikit-learn计算RMSE
-    print("RMSE:",np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-    # 用scikit-learn计算MAE
-    print("MAE:",metrics.mean_absolute_error(y_test, y_pred))
-    # 正常精确度
-    print("ER:", np.sum(np.abs(np.array(((y_test - y_pred) / y_test))) / len(y_test)))
-    # 用比赛规则要求
-    print("RANK:", getRank(y_test, y_pred))
-    # R2
-    print("R2:", metrics.r2_score(y_test, y_pred))
+    mse = metrics.mean_squared_error(y_test, y_pred)
+    rmse = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
+    mae = metrics.mean_absolute_error(y_test, y_pred)
+    rank = getRank(y_test, y_pred)
+    acc = 1 - np.sum(np.abs(np.array(((y_test - y_pred) / y_test))) / len(y_test))
+    r2 = metrics.r2_score(y_test, y_pred)
+
+    score_ret = {}
+    score_ret['MSE'] = mse
+    score_ret['RMSE'] = rmse
+    score_ret['MAE'] = mae
+    score_ret['RANK'] = rank
+    score_ret['ACC'] = acc
+    score_ret['R2'] = r2
+
+    if score == '':
+        # 用scikit-learn计算MSE
+        print("MSE:", mse)
+        # 用scikit-learn计算RMSE
+        print("RMSE:", mse)
+        # 用scikit-learn计算MAE
+        print("MAE:", mae)
+        # 用比赛规则要求
+        print("RANK:", rank)
+        # 正常精确度
+        print("ACC:", acc)
+        # R2
+        print("R2:", r2)
+        return score_ret
+    else:
+        print(score, score_ret[score])
+        return {score : score_ret[score]}
 
 
 # 可视化模型结果
@@ -79,16 +113,19 @@ def visualize(y_test, y_pred):
     ax.set_xlabel('Measured')
     ax.set_ylabel('Predicted')
     plt.show()
-   
+
 # 获取误差
-def getError(y_test, y_pre, list_algorithm):
-    error = pd.DataFrame(columns=list_algorithm,index=['MSE', 'RMSE', 'MAE', 'ER', 'RANK', 'R2'])
-    for i in list_columns:
-        error.loc['MSE',[i]] = metrics.mean_squared_error(y_test['charge_energy'], y_pre[i])
-        error.loc['RMSE',[i]] = np.sqrt(metrics.mean_squared_error(y_test['charge_energy'], y_pre[i]))
-        error.loc['MAE',[i]] = metrics.mean_absolute_error(y_test['charge_energy'], y_pre[i])
-        error.loc['RANK',[i]] = get_rank(y_test['charge_energy'], y_pre[i])
-    return error
+def getScore(y_test, y_pre, list_algorithm):
+    score = pd.DataFrame(columns=list_algorithm,index=['MSE', 'RMSE', 'MAE', 'RANK', 'ACC', 'R2'])
+    for i in list_algorithm:
+        score_dic = evaluate(y_test, y_pre[i])
+        score.loc['MSE',[i]] = score_dic['MSE']
+        score.loc['RMSE',[i]] = score_dic['RMSE'] #np.sqrt(metrics.mean_squared_error(y_test, y_pre[i]))
+        score.loc['MAE',[i]] = score_dic['MAE'] # metrics.mean_absolute_error(y_test, y_pre[i])
+        score.loc['ACC',[i]] = score_dic['ACC'] # get_rank(y_test, y_pre[i])
+        score.loc['RANK', [i]] = score_dic['RANK'] # get_rank(y_test, y_pre[i])
+        score.loc['R2', [i]] = score_dic['R2'] # get_rank(y_test, y_pre[i])
+    return score
 
 # 获取评分（比赛规则要求）
 def getRank(y_test, y_pred):
