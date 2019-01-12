@@ -74,14 +74,16 @@ def evaluate(y_test, y_pred, score=''):
     mse = metrics.mean_squared_error(y_test, y_pred)
     rmse = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
     mae = metrics.mean_absolute_error(y_test, y_pred)
+    mdae = metrics.median_absolute_error(y_test, y_pred)
     rank = getRank(y_test, y_pred)
-    acc = 1 - np.sum(np.abs(np.array(((y_test - y_pred) / y_test))) / len(y_test))
+    acc = metrics.explained_variance_score(y_test, y_pred)#1 - np.sum(np.abs(np.array(((y_test - y_pred) / y_test))) / len(y_test))
     r2 = metrics.r2_score(y_test, y_pred)
 
     score_ret = {}
     score_ret['MSE'] = mse
     score_ret['RMSE'] = rmse
     score_ret['MAE'] = mae
+    score_ret['MDAE'] = mae
     score_ret['RANK'] = rank
     score_ret['ACC'] = acc
     score_ret['R2'] = r2
@@ -93,6 +95,8 @@ def evaluate(y_test, y_pred, score=''):
         print("RMSE:", mse)
         # 用scikit-learn计算MAE
         print("MAE:", mae)
+        # 用scikit-learn计算MDAE
+        print("MDAE:", mdae)
         # 用比赛规则要求
         print("RANK:", rank)
         # 正常精确度
@@ -116,12 +120,13 @@ def visualize(y_test, y_pred):
 
 # 获取误差
 def getScore(y_test, y_pre, list_algorithm):
-    score = pd.DataFrame(columns=list_algorithm,index=['MSE', 'RMSE', 'MAE', 'RANK', 'ACC', 'R2'])
+    score = pd.DataFrame(columns=list_algorithm,index=['MSE', 'RMSE', 'MAE', 'MDAE', 'RANK', 'ACC', 'R2'])
     for i in list_algorithm:
         score_dic = evaluate(y_test, y_pre[i])
         score.loc['MSE',[i]] = score_dic['MSE']
         score.loc['RMSE',[i]] = score_dic['RMSE'] #np.sqrt(metrics.mean_squared_error(y_test, y_pre[i]))
         score.loc['MAE',[i]] = score_dic['MAE'] # metrics.mean_absolute_error(y_test, y_pre[i])
+        score.loc['MDAE', [i]] = score_dic['MDAE']  # metrics.median_absolute_error(y_test, y_pre[i])
         score.loc['ACC',[i]] = score_dic['ACC'] # get_rank(y_test, y_pre[i])
         score.loc['RANK', [i]] = score_dic['RANK'] # get_rank(y_test, y_pre[i])
         score.loc['R2', [i]] = score_dic['R2'] # get_rank(y_test, y_pre[i])
